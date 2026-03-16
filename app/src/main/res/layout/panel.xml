@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/panel"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:layout_alignParentBottom="true"
+    android:orientation="vertical"
     android:background="@color/cream"
     android:elevation="8dp">
 
     <View
-        android:id="@+id/panelDivider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/cream_dark"
-        android:layout_alignParentTop="true" />
+        android:background="@color/cream_dark" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_below="@id/panelDivider">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/navProfile"
@@ -161,4 +158,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

@@ -42,4 +42,7 @@
     <string name="nav_new">Nowe</string>
     <string name="nav_settings">Ustawienia</string>
     <string name="nav_history">Historia</string>
+
+    <string name="new_menu_title">Nowe</string>
+    <string name="new_option_plan">Zaplanuj</string>
 </resources>

@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
+import com.example.todo.Barpanel.*;
 import com.example.todo.Barpanel.BarPanel;
 import com.example.todo.Barpanel.FragmentHistory;
 import com.example.todo.Barpanel.FragmentPlan;

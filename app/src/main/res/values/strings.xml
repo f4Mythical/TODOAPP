@@ -45,4 +45,9 @@
 
     <string name="new_menu_title">Nowe</string>
     <string name="new_option_plan">Zaplanuj</string>
+
+    <string name="plan_week">Tydzień</string>
+    <string name="plan_month">Miesiąc</string>
+    <string name="plan_no_events">Brak wydarzeń</string>
+    <string name="dialog_add_plan">+ Dodaj plan</string>
 </resources>

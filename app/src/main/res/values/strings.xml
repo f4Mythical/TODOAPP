@@ -1,4 +1,39 @@
 <resources>
     <string name="app_name">EMBER</string>
     <string name="greetings">Witaj w Ember.\nTutaj Twoje zadania nigdy nie wygasną.</string>
+
+
+
+    <string name="login_title">Zaloguj się</string>
+    <string name="login_hint_email">Email lub nick</string>
+    <string name="login_hint_password">Hasło</string>
+    <string name="login_button">Zaloguj się</string>
+    <string name="login_switch_to_register">Nie mam konta? Zarejestruj się</string>
+
+    <string name="register_title">Zarejestruj się</string>
+    <string name="register_hint_nick">Wpisz nick</string>
+    <string name="register_hint_email">Wpisz email</string>
+    <string name="register_hint_password">Wpisz hasło</string>
+    <string name="register_hint_password_confirm">Potwierdź hasło</string>
+    <string name="register_button">Zarejestruj się</string>
+    <string name="register_switch_to_login">Mam już konto? Zaloguj się</string>
+
+    <string name="error_fill_email">Podaj email lub nick</string>
+    <string name="error_fill_password">Podaj hasło</string>
+    <string name="error_fill_nick">Podaj nick</string>
+    <string name="error_fill_email_register">Podaj email</string>
+    <string name="error_fill_password_register">Podaj hasło</string>
+    <string name="error_fill_password_confirm">Potwierdź hasło</string>
+    <string name="error_passwords_mismatch">Hasła nie są zgodne</string>
+
+    <string name="error_login_nick_not_found">Nie znaleziono konta dla tego nicku</string>
+    <string name="error_login_nick_no_exist">Nick nie istnieje</string>
+    <string name="error_login_failed">Błąd logowania: %s</string>
+    <string name="error_generic">Błąd: %s</string>
+
+    <string name="error_nick_taken">Nick jest już zajęty</string>
+    <string name="error_nick_check_failed">Błąd sprawdzania nicku: %s</string>
+    <string name="error_register_failed">Błąd rejestracji: %s</string>
+    <string name="error_save_nick_failed">Błąd zapisu nicku: %s</string>
+    <string name="error_save_user_failed">Błąd zapisu użytkownika: %s</string>
 </resources>

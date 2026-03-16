@@ -17,6 +17,7 @@
     <color name="done">#5F8A6A</color>
     <color name="reminder">#C28840</color>
     <color name="alert">#8B4513</color>
+    <color name="error">#B00020</color>
 
 
 </resources>

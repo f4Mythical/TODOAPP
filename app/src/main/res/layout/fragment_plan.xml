@@ -45,47 +45,68 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:paddingBottom="12dp">
+        android:paddingBottom="4dp">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleViewMode"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+        <FrameLayout
+            android:layout_width="180dp"
+            android:layout_height="32dp"
+            android:background="@drawable/toggle_track">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnWeek"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+            <View
+                android:id="@+id/toggleIndicator"
+                android:layout_width="90dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="2dp"
+                android:background="@drawable/toggle_thumb" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/plan_week"
-                android:textSize="13sp" />
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMonth"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/plan_month"
-                android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/btnWeek"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/plan_week"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/cream"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                <TextView
+                    android:id="@+id/btnMonth"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/plan_month"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/brown_medium"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
     </LinearLayout>
 
-    <ScrollView
+    <com.example.todo.Barpanel.SwipeRecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <FrameLayout
-            android:id="@+id/calendarContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </ScrollView>
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp" />
 
 </LinearLayout>

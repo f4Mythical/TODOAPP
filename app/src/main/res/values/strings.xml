@@ -50,4 +50,10 @@
     <string name="plan_month">Miesiąc</string>
     <string name="plan_no_events">Brak wydarzeń</string>
     <string name="dialog_add_plan">+ Dodaj plan</string>
+
+    <string name="profile_section_account">Konto</string>
+    <string name="profile_nick">Nick</string>
+    <string name="profile_joined">Dołączył/a</string>
+    <string name="profile_plans_count">Liczba planów</string>
+    <string name="profile_logout">Wyloguj się</string>
 </resources>

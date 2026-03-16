@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "887682052704",
+    "project_id": "ember-7d766",
+    "storage_bucket": "ember-7d766.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:887682052704:android:cb3ab6b21a6f6605c84905",
+        "android_client_info": {
+          "package_name": "com.example.todo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkp63iqjygyrJJSdTOufxjEN_eI2iy6Uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

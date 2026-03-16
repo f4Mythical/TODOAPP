@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">TODO</string>
-    <string name="greetings">Witam</string>
+    <string name="app_name">EMBER</string>
+    <string name="greetings">Witaj w Ember.\nTutaj Twoje zadania nigdy nie wygasną.</string>
 </resources>

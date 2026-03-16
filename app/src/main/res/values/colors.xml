@@ -2,4 +2,21 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="background">#E8E0D8</color>
+
+    <color name="brown_primary">#3E1F0D</color>
+    <color name="brown_medium">#6B3F1F</color>
+    <color name="brown_light">#A0522D</color>
+    <color name="brown_copper">#B87333</color>
+
+    <color name="cream">#F5EFE8</color>
+    <color name="cream_dark">#D9CFC4</color>
+
+    <color name="done">#5F8A6A</color>
+    <color name="reminder">#C28840</color>
+    <color name="alert">#8B4513</color>
+
+
 </resources>

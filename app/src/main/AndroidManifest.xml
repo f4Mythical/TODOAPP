@@ -12,6 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TODO">
         <activity
+            android:name=".Onboarding.Onboarding3"
+            android:exported="false" />
+        <activity
+            android:name=".Onboarding.Onboarding2"
+            android:exported="false" />
+        <activity
+            android:name=".Onboarding.OnBoarding"
+            android:exported="false" />
+        <activity
+            android:name=".Onboarding.OnBoarding1"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

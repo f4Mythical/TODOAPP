@@ -36,4 +36,10 @@
     <string name="error_register_failed">Błąd rejestracji: %s</string>
     <string name="error_save_nick_failed">Błąd zapisu nicku: %s</string>
     <string name="error_save_user_failed">Błąd zapisu użytkownika: %s</string>
+
+    <string name="nav_profile">Profil</string>
+    <string name="nav_plan">Plan</string>
+    <string name="nav_new">Nowe</string>
+    <string name="nav_settings">Ustawienia</string>
+    <string name="nav_history">Historia</string>
 </resources>

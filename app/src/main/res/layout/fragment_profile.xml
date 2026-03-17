@@ -59,28 +59,68 @@
                         android:gravity="center"
                         android:textColor="@color/brown_primary"
                         android:textSize="32sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <ProgressBar
+                        android:id="@+id/avatarProgress"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/brown_primary" />
 
                 </FrameLayout>
 
-                <TextView
-                    android:id="@+id/tvProfileNick"
+                <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:textColor="@color/cream"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="28dp"
+                    android:layout_marginTop="12dp">
 
-                <TextView
-                    android:id="@+id/tvProfileEmail"
+                    <TextView
+                        android:id="@+id/tvProfileNick"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cream"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.02"
+                        android:visibility="gone" />
+
+                    <View
+                        android:id="@+id/shimmerNick"
+                        android:layout_width="120dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/shimmer_shape"
+                        android:alpha="0.3" />
+
+                </FrameLayout>
+
+                <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/cream_dark"
-                    android:textSize="13sp"
-                    android:alpha="0.8" />
+                    android:layout_height="22dp"
+                    android:layout_marginTop="6dp">
+
+                    <TextView
+                        android:id="@+id/tvProfileEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cream_dark"
+                        android:textSize="13sp"
+                        android:alpha="0.8"
+                        android:visibility="gone" />
+
+                    <View
+                        android:id="@+id/shimmerEmail"
+                        android:layout_width="160dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/shimmer_shape"
+                        android:alpha="0.2" />
+
+                </FrameLayout>
 
             </LinearLayout>
 
@@ -134,13 +174,27 @@
                         android:textColor="@color/brown_medium"
                         android:textSize="13sp" />
 
-                    <TextView
-                        android:id="@+id/tvRowNick"
+                    <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/brown_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tvRowNick"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/brown_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                        <View
+                            android:id="@+id/shimmerRowNick"
+                            android:layout_width="80dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/shimmer_shape" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 
@@ -171,13 +225,27 @@
                         android:textColor="@color/brown_medium"
                         android:textSize="13sp" />
 
-                    <TextView
-                        android:id="@+id/tvRowJoined"
+                    <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/brown_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tvRowJoined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/brown_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                        <View
+                            android:id="@+id/shimmerRowJoined"
+                            android:layout_width="90dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/shimmer_shape" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 
@@ -208,13 +276,27 @@
                         android:textColor="@color/brown_medium"
                         android:textSize="13sp" />
 
-                    <TextView
-                        android:id="@+id/tvRowPlans"
+                    <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/brown_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tvRowPlans"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/brown_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                        <View
+                            android:id="@+id/shimmerRowPlans"
+                            android:layout_width="30dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/shimmer_shape" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 

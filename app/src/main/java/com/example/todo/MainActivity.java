@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import com.example.todo.Barpanel.*;
+
 import com.example.todo.Barpanel.BarPanel;
 import com.example.todo.Barpanel.FragmentHistory;
 import com.example.todo.Barpanel.FragmentPlan;
@@ -63,7 +63,11 @@ public class MainActivity extends AppCompatActivity {
         navPlan.setOnClickListener(v     -> switchTab(R.id.navPlan,     new FragmentPlan()));
         navSettings.setOnClickListener(v -> switchTab(R.id.navSettings, new FragmentSettings()));
         navHistory.setOnClickListener(v  -> switchTab(R.id.navHistory,  new FragmentHistory()));
-        navNew.setOnClickListener(v      -> BarPanel.showNewMenu(this, navNew, () -> {}));
+        navNew.setOnClickListener(v      -> {
+            if (navNew.getWindowToken() != null) {
+                BarPanel.showNewMenu(this, navNew, () -> {});
+            }
+        });
 
         loadFragment(new FragmentPlan(), false);
         updateTabColors(R.id.navPlan);
@@ -71,24 +75,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchTab(int tabId, Fragment fragment) {
         if (currentTab == tabId) return;
+        cancelTabAnimations();
         currentTab = tabId;
         loadFragment(fragment, true);
         updateTabColors(tabId);
     }
 
+    private void cancelTabAnimations() {
+        if (navProfile  != null) navProfile.animate().cancel();
+        if (navPlan     != null) navPlan.animate().cancel();
+        if (navSettings != null) navSettings.animate().cancel();
+        if (navHistory  != null) navHistory.animate().cancel();
+    }
+
     private void loadFragment(Fragment fragment, boolean animate) {
-        FragmentTransaction tx = getSupportFragmentManager()
-                .beginTransaction();
-
+        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
         if (animate) {
-            tx.setCustomAnimations(
-                    R.anim.fragment_fade_in,
-                    R.anim.fragment_fade_out
-            );
+            tx.setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out);
         }
-
-        tx.replace(R.id.fragmentContainer, fragment)
-                .commit();
+        tx.replace(R.id.fragmentContainer, fragment).commit();
     }
 
     private void updateTabColors(int activeTabId) {
@@ -101,13 +106,15 @@ public class MainActivity extends AppCompatActivity {
         setTabColor(navHistory,  R.id.navHistoryIcon,  R.id.navHistoryLabel,  activeTabId == R.id.navHistory,  active, inactive);
     }
 
-    private void setTabColor(View parent, int iconId, int labelId, boolean isActive, int active, int inactive) {
+    private void setTabColor(View parent, int iconId, int labelId, boolean isActive,
+                             int active, int inactive) {
+        if (parent == null) return;
         int color = isActive ? active : inactive;
 
         android.widget.ImageView icon = parent.findViewById(iconId);
         android.widget.TextView label = parent.findViewById(labelId);
 
-        if (icon != null)  icon.setColorFilter(color);
+        if (icon  != null) icon.setColorFilter(color);
         if (label != null) label.setTextColor(color);
 
         parent.animate()

@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.todo.R;
@@ -38,12 +37,13 @@ public class FragmentPlan extends Fragment {
     private TextView btnMonthLabel;
     private SwipeRecyclerView recyclerView;
     private PlanAdapter adapter;
+    private ObjectAnimator currentToggleAnim;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private static final String[] DAY_NAMES_FULL = {
-            "Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"};
+            "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"};
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -54,6 +54,8 @@ public class FragmentPlan extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        executor = Executors.newSingleThreadExecutor();
 
         today           = Calendar.getInstance();
         currentCalendar = Calendar.getInstance();
@@ -67,14 +69,15 @@ public class FragmentPlan extends Fragment {
         adapter = new PlanAdapter(today, currentCalendar, new PlanAdapter.OnDayClickListener() {
             @Override
             public void onClick(Calendar day, int dowIndex) {
-                showEventsDialog(day, dowIndex);
+                if (isAdded() && getActivity() != null) {
+                    showEventsDialog(day, dowIndex);
+                }
             }
             @Override
             public void onLongClick(Calendar day, int dowIndex) {
                 currentCalendar.set(Calendar.YEAR,         day.get(Calendar.YEAR));
                 currentCalendar.set(Calendar.MONTH,        day.get(Calendar.MONTH));
                 currentCalendar.set(Calendar.DAY_OF_MONTH, day.get(Calendar.DAY_OF_MONTH));
-                // TODO: OKIENKO POJAWIENIA
             }
         });
 
@@ -96,9 +99,25 @@ public class FragmentPlan extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentToggleAnim != null) {
+            currentToggleAnim.cancel();
+            currentToggleAnim = null;
+        }
+        if (recyclerView != null) {
+            recyclerView.animate().cancel();
+            recyclerView.setOnSwipeListener(null);
+        }
+        mainHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        executor.shutdownNow();
+        if (executor != null) {
+            executor.shutdownNow();
+        }
     }
 
     private void navigateForward() {
@@ -121,9 +140,13 @@ public class FragmentPlan extends Fragment {
     }
 
     private void animateToggle(boolean toWeek) {
+        if (toggleIndicator == null || !isAdded()) return;
         int targetX = toWeek ? 0 : dpToPx(88);
-        ObjectAnimator.ofFloat(toggleIndicator, "translationX",
-                toggleIndicator.getTranslationX(), targetX).setDuration(220).start();
+        if (currentToggleAnim != null) currentToggleAnim.cancel();
+        currentToggleAnim = ObjectAnimator.ofFloat(toggleIndicator, "translationX",
+                toggleIndicator.getTranslationX(), targetX);
+        currentToggleAnim.setDuration(220);
+        currentToggleAnim.start();
         btnWeekLabel.setTextColor(ContextCompat.getColor(requireContext(),
                 toWeek ? R.color.cream : R.color.brown_medium));
         btnMonthLabel.setTextColor(ContextCompat.getColor(requireContext(),
@@ -131,16 +154,17 @@ public class FragmentPlan extends Fragment {
     }
 
     private void loadData(int direction) {
+        if (!isAdded()) return;
         updateHeader();
         final Calendar snap    = (Calendar) currentCalendar.clone();
         final boolean weekMode = isWeekMode;
 
         executor.execute(() -> {
-            if (!isAdded()) return;
             List<PlanItem> items = weekMode ? buildWeekItems(snap) : buildMonthItems(snap);
             mainHandler.post(() -> {
-                if (!isAdded()) return;
+                if (!isAdded() || recyclerView == null) return;
                 adapter.setItems(items, snap);
+                recyclerView.animate().cancel();
                 recyclerView.setAlpha(0f);
                 recyclerView.animate().alpha(1f).setDuration(200).start();
                 if (direction != 0) {
@@ -155,6 +179,7 @@ public class FragmentPlan extends Fragment {
     }
 
     private void updateHeader() {
+        if (tvMonthYear == null || !isAdded()) return;
         if (isWeekMode) {
             Calendar ws = getWeekStart(currentCalendar);
             Calendar we = (Calendar) ws.clone();
@@ -221,7 +246,9 @@ public class FragmentPlan extends Fragment {
     }
 
     private void showEventsDialog(Calendar day, int dowIndex) {
+        if (!isAdded() || getActivity() == null || getActivity().isFinishing()) return;
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        dialog.setOnDismissListener(d -> {});
         View v = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_day_events, null);
         dialog.setContentView(v);
@@ -232,6 +259,7 @@ public class FragmentPlan extends Fragment {
     }
 
     private int dpToPx(int dp) {
+        if (!isAdded()) return 0;
         return Math.round(dp * requireContext().getResources().getDisplayMetrics().density);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.todo.Barpanel;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,25 +55,39 @@ public class FragmentProfile extends Fragment {
         btnLogout.setOnClickListener(v -> logout());
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        tvAvatarInitials = null;
+        tvProfileNick    = null;
+        tvProfileEmail   = null;
+        tvRowNick        = null;
+        tvRowJoined      = null;
+        tvRowPlans       = null;
+    }
+
     private void loadProfile() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
 
         String email = user.getEmail() != null ? user.getEmail() : "";
-        tvProfileEmail.setText(email);
+        if (isAdded() && tvProfileEmail != null) tvProfileEmail.setText(email);
+
+        final String finalEmail = email;
 
         FirebaseFirestore.getInstance()
                 .collection("nicks")
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (!isAdded()) return;
+                    if (!isAdded() || tvProfileNick == null) return;
                     String nick = doc.getString("nick");
-                    if (nick == null || nick.isEmpty()) nick = email;
-
+                    if (nick == null || nick.isEmpty()) nick = finalEmail;
                     tvProfileNick.setText(nick);
-                    tvRowNick.setText(nick);
-                    tvAvatarInitials.setText(nick.substring(0, 1).toUpperCase());
+                    if (tvRowNick != null) tvRowNick.setText(nick);
+                    if (tvAvatarInitials != null && !nick.isEmpty()) {
+                        tvAvatarInitials.setText(nick.substring(0, 1).toUpperCase());
+                    }
                 });
 
         FirebaseFirestore.getInstance()
@@ -82,7 +95,7 @@ public class FragmentProfile extends Fragment {
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (!isAdded()) return;
+                    if (!isAdded() || tvRowJoined == null) return;
                     Timestamp ts = doc.getTimestamp("createdAt");
                     if (ts != null) {
                         Date date = ts.toDate();
@@ -104,24 +117,23 @@ public class FragmentProfile extends Fragment {
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(query -> {
-                    if (!isAdded()) return;
+                    if (!isAdded() || tvRowPlans == null) return;
                     tvRowPlans.setText(String.valueOf(query.size()));
                 })
                 .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
+                    if (!isAdded() || tvRowPlans == null) return;
                     tvRowPlans.setText("0");
                 });
     }
 
     private void logout() {
+        if (!isAdded() || getActivity() == null) return;
         FirebaseAuth.getInstance().signOut();
-
         requireActivity()
                 .getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean("onboarding_ukonczone", false)
                 .apply();
-
         Intent intent = new Intent(requireActivity(), OnBoarding.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

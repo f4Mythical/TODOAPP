@@ -12,9 +12,13 @@ import android.widget.PopupWindow;
 
 import com.example.todo.R;
 
+import java.lang.ref.WeakReference;
+
 public class BarPanel {
 
     public static void showNewMenu(Context context, View anchor, Runnable onPlanClick) {
+        if (anchor == null || anchor.getWindowToken() == null) return;
+
         View popupView = LayoutInflater.from(context).inflate(R.layout.popup_new, null);
 
         PopupWindow popup = new PopupWindow(
@@ -29,8 +33,16 @@ public class BarPanel {
         popup.setOutsideTouchable(true);
         popup.setAnimationStyle(R.style.PopupAnim);
 
-        rotateFab(anchor, 45f);
-        popup.setOnDismissListener(() -> rotateFab(anchor, 0f));
+        WeakReference<View> anchorRef = new WeakReference<>(anchor);
+        ObjectAnimator rotateIn = rotateFab(anchor, 45f);
+
+        popup.setOnDismissListener(() -> {
+            View fab = anchorRef.get();
+            if (fab != null && fab.isAttachedToWindow()) {
+                rotateFab(fab, 0f);
+            }
+            if (rotateIn != null) rotateIn.cancel();
+        });
 
         LinearLayout optionPlan = popupView.findViewById(R.id.optionPlan);
         optionPlan.setOnClickListener(v -> {
@@ -50,10 +62,12 @@ public class BarPanel {
         popup.showAtLocation(anchor.getRootView(), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, yOffset);
     }
 
-    private static void rotateFab(View fab, float degrees) {
+    private static ObjectAnimator rotateFab(View fab, float degrees) {
+        if (fab == null || !fab.isAttachedToWindow()) return null;
         ObjectAnimator animator = ObjectAnimator.ofFloat(fab, "rotation", fab.getRotation(), degrees);
         animator.setDuration(250);
         animator.setInterpolator(new android.view.animation.OvershootInterpolator());
         animator.start();
+        return animator;
     }
 }

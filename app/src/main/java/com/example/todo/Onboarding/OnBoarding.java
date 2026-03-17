@@ -46,6 +46,7 @@ public class OnBoarding extends AppCompatActivity implements NoWifiFragment.OnRe
 
     @Override
     public void onNetworkLost() {
+        if (isFinishing() || isDestroyed()) return;
         if (!isShowingNoWifi) {
             showNoWifi();
             isShowingNoWifi = true;
@@ -54,7 +55,6 @@ public class OnBoarding extends AppCompatActivity implements NoWifiFragment.OnRe
 
     @Override
     public void onNetworkAvailable() {
-
     }
 
     private void checkInitialState() {
@@ -68,6 +68,7 @@ public class OnBoarding extends AppCompatActivity implements NoWifiFragment.OnRe
     }
 
     private void showNoWifi() {
+        if (isFinishing() || isDestroyed()) return;
         NoWifiFragment fragment = new NoWifiFragment();
         fragment.setOnRetryListener(this);
         getSupportFragmentManager()
@@ -79,6 +80,7 @@ public class OnBoarding extends AppCompatActivity implements NoWifiFragment.OnRe
 
     @Override
     public void onRetry() {
+        if (isFinishing() || isDestroyed()) return;
         if (NetworkReceiver.isInternetAvailable(this)) {
             goToGreetings();
             isShowingNoWifi = false;
@@ -86,6 +88,7 @@ public class OnBoarding extends AppCompatActivity implements NoWifiFragment.OnRe
     }
 
     public void showFragment(Fragment fragment, boolean addToBackStack) {
+        if (isFinishing() || isDestroyed()) return;
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(

@@ -1,7 +1,6 @@
 <resources>
-    <string name="app_name">EMBER</string>
+    <string name="app_name">Ember</string>
     <string name="greetings">Witaj w Ember.\nTutaj Twoje zadania nigdy nie wygasną.</string>
-
 
 
     <string name="login_title">Zaloguj się</string>
@@ -56,4 +55,16 @@
     <string name="profile_joined">Dołączył/a</string>
     <string name="profile_plans_count">Liczba planów</string>
     <string name="profile_logout">Wyloguj się</string>
+
+    <string name="greeting_morning">Dzień dobry,</string>
+    <string name="greeting_afternoon">Dzień dobry,</string>
+    <string name="greeting_evening">Dobry wieczór,</string>
+    <string name="home_today">Dziś</string>
+    <string name="home_count">%d planów</string>
+    <string name="home_no_plans">Brak planów na dziś</string>
+    <string name="home_add_first">+ Dodaj pierwszy plan</string>
+    <string name="home_untitled">Plan</string>
+
+    <string name="no_wifi">Brak połączenia</string>
+    <string name="waiting">Oczekiwanie na połączenie z internetem</string>
 </resources>

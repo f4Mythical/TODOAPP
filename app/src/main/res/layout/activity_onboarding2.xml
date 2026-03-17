@@ -18,7 +18,7 @@
             android:id="@+id/TextViewAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
+            android:text="EMBER"
             android:textColor="@color/brown_primary"
             android:textSize="42sp"
             android:textStyle="bold"

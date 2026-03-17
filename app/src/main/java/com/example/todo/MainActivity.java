@@ -2,7 +2,13 @@ package com.example.todo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.todo.Barpanel.BarPanel;
 import com.example.todo.Barpanel.FragmentHistory;
+import com.example.todo.Barpanel.FragmentHome;
 import com.example.todo.Barpanel.FragmentPlan;
 import com.example.todo.Barpanel.FragmentProfile;
 import com.example.todo.Barpanel.FragmentSettings;
@@ -28,7 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private View navHistory;
     private View navNew;
 
-    private int currentTab = R.id.navPlan;
+    private int currentTab = -1;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
         if (!onboardingDone) {
             Intent intent = new Intent(this, OnBoarding.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        if (!isInternetAvailable()) {
+            Intent intent = new Intent(this, NoWifi.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
             return;
@@ -69,8 +86,61 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadFragment(new FragmentPlan(), false);
-        updateTabColors(R.id.navPlan);
+        loadFragment(new FragmentHome(), false);
+        updateTabColors(-1);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerNetworkCallback();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterNetworkCallback();
+    }
+
+    private void registerNetworkCallback() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onLost(Network network) {
+                mainHandler.post(() -> {
+                    if (!isFinishing()) {
+                        Intent intent = new Intent(MainActivity.this, NoWifi.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                });
+            }
+        };
+
+        cm.registerNetworkCallback(request, networkCallback);
+    }
+
+    private void unregisterNetworkCallback() {
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            cm.unregisterNetworkCallback(networkCallback);
+            networkCallback = null;
+        }
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        Network activeNetwork = cm.getActiveNetwork();
+        if (activeNetwork == null) return false;
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(activeNetwork);
+        return capabilities != null &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
     }
 
     private void switchTab(int tabId, Fragment fragment) {

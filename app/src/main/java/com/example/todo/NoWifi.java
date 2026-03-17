@@ -9,6 +9,7 @@ import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.todo.Onboarding.OnBoarding;
@@ -18,10 +19,32 @@ public class NoWifi extends AppCompatActivity {
     private ConnectivityManager.NetworkCallback networkCallback;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    private TextView tvSubtitle;
+    private final Handler dotsHandler = new Handler(Looper.getMainLooper());
+    private int dotsCount = 0;
+
+    private final Runnable dotsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (tvSubtitle == null) return;
+            int state = dotsCount % 4;
+            String dots;
+            if (state == 0) dots = ".";
+            else if (state == 1) dots = "..";
+            else if (state == 2) dots = "...";
+            else dots = "";
+            tvSubtitle.setText(getString(R.string.waiting) + dots);
+            dotsCount++;
+            dotsHandler.postDelayed(this, 500);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nowifi);
+        tvSubtitle = findViewById(R.id.tv_subtitle);
+        dotsHandler.post(dotsRunnable);
     }
 
     @Override
@@ -35,6 +58,7 @@ public class NoWifi extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unregisterNetworkCallback();
+        dotsHandler.removeCallbacks(dotsRunnable);
     }
 
     private void registerNetworkCallback() {

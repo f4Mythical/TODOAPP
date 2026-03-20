@@ -159,6 +159,24 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/cream_dark" />
+
+            <TextView
+                android:id="@+id/tvDeletePlan"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center"
+                android:text="Usuń"
+                android:textColor="@color/brown_medium"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
+
         </LinearLayout>
 
     </LinearLayout>

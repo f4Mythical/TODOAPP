@@ -24,8 +24,18 @@ public class PlanDetailActivity extends AppCompatActivity {
         TextView tvContent  = findViewById(R.id.tvDetailContent);
         TextView tvDueTime  = findViewById(R.id.tvDetailDueTime);
         TextView tvPriority = findViewById(R.id.tvDetailPriority);
+        TextView tvDelete   = findViewById(R.id.tvDeletePlan);
 
         findViewById(R.id.btnDetailClose).setOnClickListener(v -> finish());
+
+        tvDelete.setOnClickListener(v -> {
+            FirebaseFirestore.getInstance()
+                    .collection("plans")
+                    .document(planId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> finish())
+                    .addOnFailureListener(e -> finish());
+        });
 
         FirebaseFirestore.getInstance()
                 .collection("plans")

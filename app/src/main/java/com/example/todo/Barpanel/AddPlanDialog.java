@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +19,8 @@ import androidx.core.content.ContextCompat;
 
 import com.example.todo.FirestoreHelper;
 import com.example.todo.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -39,6 +43,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
     private static final String ARG_DATE_MONTH = "month";
     private static final String ARG_DATE_DAY   = "day";
 
+    private static final int CHIPS_PER_ROW = 6;
+
     private OnPlanAddedListener listener;
 
     private TextInputEditText etTitle, etContent;
@@ -46,6 +52,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
     private TextView          tvSelectedDate;
     private TextView          tvDateError;
     private LinearLayout      hoursGrid;
+    private ScrollView        notifChipsScroll;
     private LinearLayout      notifChipsContainer;
     private Button            btnLow, btnMedium, btnHigh;
     private Button            btnSave;
@@ -89,6 +96,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         tvSelectedDate       = view.findViewById(R.id.tvSelectedDate);
         tvDateError          = view.findViewById(R.id.tvDateError);
         hoursGrid            = view.findViewById(R.id.hoursGrid);
+        notifChipsScroll     = view.findViewById(R.id.notifChipsScroll);
         notifChipsContainer  = view.findViewById(R.id.notifChipsContainer);
         btnLow               = view.findViewById(R.id.btnPriorityLow);
         btnMedium            = view.findViewById(R.id.btnPriorityMedium);
@@ -121,6 +129,25 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         buildHoursGrid();
 
         btnSave.setOnClickListener(v -> savePlan());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+        if (dialog == null) return;
+
+        FrameLayout bottomSheet = dialog.findViewById(
+                com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet == null) return;
+
+        bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+        bottomSheet.requestLayout();
+
+        BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setSkipCollapsed(true);
+        behavior.setPeekHeight(0);
     }
 
     private void applyHintColors() {
@@ -232,6 +259,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         grid.setOrientation(LinearLayout.VERTICAL);
         int padding = dpToPx(16);
         grid.setPadding(padding, padding, padding, padding);
+        grid.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.background));
 
         int[] minutes = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55};
         for (int row = 0; row < 2; row++) {
@@ -257,6 +285,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         builder.setNegativeButton(android.R.string.cancel, null);
         android.app.AlertDialog dialog = builder.create();
 
+        dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(
+                ContextCompat.getColor(requireContext(), R.color.background)));
         for (int row = 0; row < grid.getChildCount(); row++) {
             LinearLayout rowL = (LinearLayout) grid.getChildAt(row);
             for (int col = 0; col < rowL.getChildCount(); col++) {
@@ -274,25 +304,69 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
 
     private void refreshNotifChips() {
         notifChipsContainer.removeAllViews();
-        for (int[] t : notifTimes) {
+
+        if (notifTimes.isEmpty()) {
+            if (notifChipsScroll != null) notifChipsScroll.setVisibility(View.GONE);
+            return;
+        }
+
+        if (notifChipsScroll != null) notifChipsScroll.setVisibility(View.VISIBLE);
+
+        int chipMargin = dpToPx(4);
+        LinearLayout currentRow = null;
+
+        for (int i = 0; i < notifTimes.size(); i++) {
+            if (i % CHIPS_PER_ROW == 0) {
+                currentRow = new LinearLayout(requireContext());
+                currentRow.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                rowLp.setMargins(0, 0, 0, chipMargin);
+                currentRow.setLayoutParams(rowLp);
+                notifChipsContainer.addView(currentRow);
+            }
+
+            final int[] t = notifTimes.get(i);
             TextView chip = new TextView(requireContext());
             chip.setText(String.format(java.util.Locale.getDefault(), "%d:%02d", t[0], t[1]));
-            chip.setTextSize(12f);
+            chip.setTextSize(11f);
             chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.cream));
             chip.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_selected_bg));
-            int ph = dpToPx(6), pv = dpToPx(4);
+            chip.setGravity(android.view.Gravity.CENTER);
+            int ph = dpToPx(4), pv = dpToPx(5);
             chip.setPadding(ph, pv, ph, pv);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, dpToPx(6), 0);
+
+            boolean isLastInRow = (i % CHIPS_PER_ROW == CHIPS_PER_ROW - 1);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            lp.setMargins(0, 0, isLastInRow ? 0 : chipMargin, 0);
             chip.setLayoutParams(lp);
-            final int[] timeRef = t;
+
             chip.setOnClickListener(v -> {
-                notifTimes.remove(timeRef);
+                notifTimes.remove(t);
                 refreshNotifChips();
                 rebuildHourGrid();
             });
-            notifChipsContainer.addView(chip);
+
+            currentRow.addView(chip);
+        }
+
+        int remainder = notifTimes.size() % CHIPS_PER_ROW;
+        if (remainder != 0 && currentRow != null) {
+            int empty = CHIPS_PER_ROW - remainder;
+            for (int i = 0; i < empty; i++) {
+                View spacer = new View(requireContext());
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                lp.setMargins(0, 0, (i < empty - 1) ? chipMargin : 0, 0);
+                spacer.setLayoutParams(lp);
+                currentRow.addView(spacer);
+            }
+        }
+
+        if (notifChipsScroll != null) {
+            notifChipsScroll.post(() -> notifChipsScroll.fullScroll(ScrollView.FOCUS_DOWN));
         }
     }
 

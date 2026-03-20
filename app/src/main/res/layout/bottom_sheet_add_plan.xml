@@ -170,7 +170,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add_plan_error_no_date"
-            android:textColor="#B00020"
+            android:textColor="@color/error"
             android:textSize="12sp"
             android:layout_marginTop="4dp"
             android:layout_marginStart="4dp"
@@ -178,11 +178,11 @@
             android:visibility="gone" />
 
         <View
+            android:id="@+id/spacerDate"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="24dp"
-            android:visibility="invisible"
-            android:id="@+id/spacerDate" />
+            android:visibility="invisible" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -210,12 +210,21 @@
             android:orientation="vertical"
             android:layout_marginBottom="10dp" />
 
-        <LinearLayout
-            android:id="@+id/notifChipsContainer"
+        <ScrollView
+            android:id="@+id/notifChipsScroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp" />
+            android:maxHeight="96dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/notifChipsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </ScrollView>
 
         <TextView
             android:layout_width="wrap_content"

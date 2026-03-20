@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.todo.PlanDetailActivity;
 import com.example.todo.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -279,7 +281,28 @@ public class FragmentPlan extends Fragment {
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
         View v = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_day_events, null);
+
+        v.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.background));
         dialog.setContentView(v);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        dialog.setOnShowListener(di -> {
+            FrameLayout bottomSheet = dialog.findViewById(
+                    com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                bottomSheet.setBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.background));
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setFitToContents(true);
+                behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                bottomSheet.requestLayout();
+            }
+        });
 
         SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", new Locale("pl"));
         ((TextView) v.findViewById(R.id.tvDialogDate)).setText(sdf.format(day.getTime()));

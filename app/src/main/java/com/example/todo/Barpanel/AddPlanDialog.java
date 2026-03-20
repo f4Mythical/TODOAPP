@@ -356,20 +356,24 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         String email = user.getEmail() != null ? user.getEmail() : "";
         Timestamp dueTime = new Timestamp(selectedDueDate.getTime());
 
-        Timestamp notifTime = null;
-        if (!notifTimes.isEmpty()) {
+        List<Timestamp> notifTimestamps = new ArrayList<>();
+        for (int[] t : notifTimes) {
             Calendar notifCal = (Calendar) selectedDueDate.clone();
-            notifCal.set(Calendar.HOUR_OF_DAY, notifTimes.get(0)[0]);
-            notifCal.set(Calendar.MINUTE,      notifTimes.get(0)[1]);
-            notifCal.set(Calendar.SECOND, 0);
-            notifTime = new Timestamp(notifCal.getTime());
+            notifCal.set(Calendar.HOUR_OF_DAY, t[0]);
+            notifCal.set(Calendar.MINUTE,      t[1]);
+            notifCal.set(Calendar.SECOND,      0);
+            notifCal.set(Calendar.MILLISECOND, 0);
+            notifTimestamps.add(new Timestamp(notifCal.getTime()));
         }
+
+        Timestamp notifTime = notifTimestamps.isEmpty() ? null : notifTimestamps.get(0);
 
         setSaving(true);
 
-        final Timestamp finalNotifTime = notifTime;
-        final String    finalTitle     = title;
-        final String    finalContent   = content;
+        final List<Timestamp> finalNotifTimestamps = notifTimestamps;
+        final Timestamp       finalNotifTime       = notifTime;
+        final String          finalTitle           = title;
+        final String          finalContent         = content;
 
         FirebaseFirestore.getInstance()
                 .collection("nicks")
@@ -388,6 +392,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
                             finalTitle,
                             finalContent,
                             finalNotifTime,
+                            finalNotifTimestamps,
                             dueTime,
                             selectedPriority
                     );

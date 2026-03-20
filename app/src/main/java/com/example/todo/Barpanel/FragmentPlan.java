@@ -49,6 +49,8 @@ public class FragmentPlan extends Fragment {
     private ExecutorService executor;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    private boolean initialLoadDone = false;
+
     private static final String[] DAY_NAMES_FULL = {
             "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"};
 
@@ -104,7 +106,16 @@ public class FragmentPlan extends Fragment {
         btnWeekLabel.setOnClickListener(v -> setMode(true));
         btnMonthLabel.setOnClickListener(v -> setMode(false));
 
+        initialLoadDone = false;
         loadData(0);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (initialLoadDone) {
+            loadData(0);
+        }
     }
 
     @Override
@@ -164,6 +175,7 @@ public class FragmentPlan extends Fragment {
             List<PlanItem> items = weekMode ? buildWeekItems(snap) : buildMonthItems(snap);
             mainHandler.post(() -> {
                 if (!isAdded() || recyclerView == null) return;
+                initialLoadDone = true;
                 adapter.setItems(items, snap);
                 recyclerView.animate().cancel();
                 recyclerView.setAlpha(0f);

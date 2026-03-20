@@ -9,6 +9,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.List;
+
 public class BootReceiver extends BroadcastReceiver {
 
     @Override
@@ -30,17 +32,33 @@ public class BootReceiver extends BroadcastReceiver {
                 .get()
                 .addOnSuccessListener(query -> {
                     for (QueryDocumentSnapshot doc : query) {
-                        com.google.firebase.Timestamp notifTs = doc.getTimestamp("notificationTime");
-                        if (notifTs == null) continue;
+                        String planId  = doc.getId();
+                        String title   = doc.getString("title");
+                        String content = doc.getString("content");
 
-                        long triggerMs = notifTs.toDate().getTime();
-                        if (triggerMs <= nowMs) continue;
+                        List<com.google.firebase.Timestamp> notifList =
+                                (List<com.google.firebase.Timestamp>) doc.get("notificationTimes");
 
-                        String planId   = doc.getId();
-                        String title    = doc.getString("title");
-                        String content  = doc.getString("content");
-
-                        NotificationScheduler.schedule(context, planId, title, content, triggerMs);
+                        if (notifList != null && !notifList.isEmpty()) {
+                            for (com.google.firebase.Timestamp ts : notifList) {
+                                if (ts == null) continue;
+                                long triggerMs = ts.toDate().getTime();
+                                if (triggerMs <= nowMs) continue;
+                                NotificationScheduler.schedule(
+                                        context,
+                                        planId + "_" + triggerMs,
+                                        title,
+                                        content,
+                                        triggerMs
+                                );
+                            }
+                        } else {
+                            com.google.firebase.Timestamp notifTs = doc.getTimestamp("notificationTime");
+                            if (notifTs == null) continue;
+                            long triggerMs = notifTs.toDate().getTime();
+                            if (triggerMs <= nowMs) continue;
+                            NotificationScheduler.schedule(context, planId, title, content, triggerMs);
+                        }
                     }
                 });
     }

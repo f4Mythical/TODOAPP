@@ -35,6 +35,8 @@ public class FragmentHistory extends Fragment {
     private View shimmerCard1, shimmerCard2, shimmerCard3;
     private ValueAnimator shimmerAnim;
 
+    private boolean initialLoadDone = false;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -52,8 +54,17 @@ public class FragmentHistory extends Fragment {
         shimmerCard2   = view.findViewById(R.id.shimmerCard2);
         shimmerCard3   = view.findViewById(R.id.shimmerCard3);
 
+        initialLoadDone = false;
         startShimmer();
         loadPlans();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (initialLoadDone) {
+            refresh();
+        }
     }
 
     @Override
@@ -68,6 +79,13 @@ public class FragmentHistory extends Fragment {
         shimmerCard3   = null;
     }
 
+    private void refresh() {
+        if (!isAdded() || listContainer == null) return;
+        listContainer.removeAllViews();
+        if (emptyContainer != null) emptyContainer.setVisibility(View.GONE);
+        if (tvHistoryCount != null) tvHistoryCount.setVisibility(View.GONE);
+        loadPlans();
+    }
 
     private void startShimmer() {
         shimmerAnim = ValueAnimator.ofFloat(0.12f, 0.45f);
@@ -98,7 +116,6 @@ public class FragmentHistory extends Fragment {
         if (shimmerCard3 != null) shimmerCard3.setVisibility(View.GONE);
     }
 
-
     private void loadPlans() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) { hideShimmers(); showEmpty(); return; }
@@ -112,6 +129,7 @@ public class FragmentHistory extends Fragment {
                 .get()
                 .addOnSuccessListener(query -> {
                     if (!isAdded() || listContainer == null) return;
+                    initialLoadDone = true;
                     hideShimmers();
 
                     List<QueryDocumentSnapshot> all = new ArrayList<>();
@@ -135,6 +153,8 @@ public class FragmentHistory extends Fragment {
 
                     SimpleDateFormat dateFmt =
                             new SimpleDateFormat("d MMM yyyy, HH:mm", new Locale("pl"));
+                    SimpleDateFormat timeFmt =
+                            new SimpleDateFormat("HH:mm", new Locale("pl"));
 
                     int delay = 0;
                     for (QueryDocumentSnapshot doc : all) {
@@ -154,11 +174,30 @@ public class FragmentHistory extends Fragment {
                         String dueLabel = dueTs != null
                                 ? dateFmt.format(dueTs.toDate()) : "—";
 
-                        com.google.firebase.Timestamp notifTs = doc.getTimestamp("notificationTime");
-                        boolean hasNotif = notifTs != null;
-                        String notifLabel = hasNotif
-                                ? dateFmt.format(notifTs.toDate())
-                                : getString(R.string.history_no_notif);
+                        // Czytaj listę wszystkich powiadomień
+                        List<com.google.firebase.Timestamp> notifList =
+                                (List<com.google.firebase.Timestamp>) doc.get("notificationTimes");
+
+                        // Fallback dla starych planów
+                        if (notifList == null || notifList.isEmpty()) {
+                            com.google.firebase.Timestamp single = doc.getTimestamp("notificationTime");
+                            if (single != null) {
+                                notifList = new ArrayList<>();
+                                notifList.add(single);
+                            }
+                        }
+
+                        boolean hasNotif = notifList != null && !notifList.isEmpty();
+
+                        StringBuilder notifLabel = new StringBuilder();
+                        if (hasNotif) {
+                            for (int i = 0; i < notifList.size(); i++) {
+                                if (i > 0) notifLabel.append(", ");
+                                notifLabel.append(timeFmt.format(notifList.get(i).toDate()));
+                            }
+                        } else {
+                            notifLabel.append(getString(R.string.history_no_notif));
+                        }
 
                         Boolean isDone = doc.getBoolean("isDone");
                         boolean done = isDone != null && isDone;
@@ -216,11 +255,11 @@ public class FragmentHistory extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded()) return;
+                    initialLoadDone = true;
                     hideShimmers();
                     showEmpty();
                 });
     }
-
 
     private void showEmpty() {
         if (emptyContainer == null) return;

@@ -1,12 +1,14 @@
 package com.example.todo.Barpanel;
 
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,8 +16,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.todo.PlanDetailActivity;
 import com.example.todo.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +63,6 @@ public class FragmentPlan extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         executor = Executors.newSingleThreadExecutor();
-
         today           = Calendar.getInstance();
         currentCalendar = Calendar.getInstance();
 
@@ -70,14 +76,17 @@ public class FragmentPlan extends Fragment {
             @Override
             public void onClick(Calendar day, int dowIndex) {
                 if (isAdded() && getActivity() != null) {
-                    showEventsDialog(day, dowIndex);
+                    showDayPreview(day, dowIndex);
                 }
             }
             @Override
             public void onLongClick(Calendar day, int dowIndex) {
-                currentCalendar.set(Calendar.YEAR,         day.get(Calendar.YEAR));
-                currentCalendar.set(Calendar.MONTH,        day.get(Calendar.MONTH));
-                currentCalendar.set(Calendar.DAY_OF_MONTH, day.get(Calendar.DAY_OF_MONTH));
+                if (isAdded() && getActivity() != null) {
+                    currentCalendar.set(Calendar.YEAR,         day.get(Calendar.YEAR));
+                    currentCalendar.set(Calendar.MONTH,        day.get(Calendar.MONTH));
+                    currentCalendar.set(Calendar.DAY_OF_MONTH, day.get(Calendar.DAY_OF_MONTH));
+                    openAddPlanDialog(day);
+                }
             }
         });
 
@@ -101,23 +110,15 @@ public class FragmentPlan extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (currentToggleAnim != null) {
-            currentToggleAnim.cancel();
-            currentToggleAnim = null;
-        }
-        if (recyclerView != null) {
-            recyclerView.animate().cancel();
-            recyclerView.setOnSwipeListener(null);
-        }
+        if (currentToggleAnim != null) { currentToggleAnim.cancel(); currentToggleAnim = null; }
+        if (recyclerView != null) { recyclerView.animate().cancel(); recyclerView.setOnSwipeListener(null); }
         mainHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (executor != null) {
-            executor.shutdownNow();
-        }
+        if (executor != null) executor.shutdownNow();
     }
 
     private void navigateForward() {
@@ -225,8 +226,7 @@ public class FragmentPlan extends Fragment {
             }
             if (m != lastMonth) {
                 SimpleDateFormat sdf = new SimpleDateFormat("LLLL", new Locale("pl"));
-                list.add(new PlanItem(
-                        sdf.format(day.getTime()).toUpperCase(new Locale("pl")), false));
+                list.add(new PlanItem(sdf.format(day.getTime()).toUpperCase(new Locale("pl")), false));
                 lastMonth = m;
             }
 
@@ -245,17 +245,93 @@ public class FragmentPlan extends Fragment {
         return ws;
     }
 
-    private void showEventsDialog(Calendar day, int dowIndex) {
+    private void showDayPreview(Calendar day, int dowIndex) {
         if (!isAdded() || getActivity() == null || getActivity().isFinishing()) return;
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        String email = user.getEmail();
+        if (email == null) return;
+
+        Calendar startOfDay = (Calendar) day.clone();
+        startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+        startOfDay.set(Calendar.MINUTE, 0);
+        startOfDay.set(Calendar.SECOND, 0);
+        startOfDay.set(Calendar.MILLISECOND, 0);
+        final long startMs = startOfDay.getTimeInMillis();
+
+        Calendar endOfDay = (Calendar) startOfDay.clone();
+        endOfDay.add(Calendar.DAY_OF_MONTH, 1);
+        final long endMs = endOfDay.getTimeInMillis();
+
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
-        dialog.setOnDismissListener(d -> {});
         View v = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_day_events, null);
         dialog.setContentView(v);
+
         SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", new Locale("pl"));
         ((TextView) v.findViewById(R.id.tvDialogDate)).setText(sdf.format(day.getTime()));
         ((TextView) v.findViewById(R.id.tvDialogDow)).setText(DAY_NAMES_FULL[dowIndex]);
+
+        LinearLayout eventsListContainer = v.findViewById(R.id.eventsListContainer);
+        TextView tvNoEvents              = v.findViewById(R.id.tvNoEvents);
+
+        FirebaseFirestore.getInstance()
+                .collection("plans")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(query -> {
+                    SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", new Locale("pl"));
+                    int count = 0;
+
+                    for (QueryDocumentSnapshot doc : query) {
+                        com.google.firebase.Timestamp ts = doc.getTimestamp("dueTime");
+                        if (ts == null) continue;
+                        long docMs = ts.toDate().getTime();
+                        if (docMs < startMs || docMs >= endMs) continue;
+
+                        count++;
+                        final String planId = doc.getId();
+
+                        String title = doc.getString("title");
+                        if (title == null || title.isEmpty()) title = doc.getString("content");
+                        if (title == null || title.isEmpty()) title = "—";
+
+                        View row = LayoutInflater.from(requireContext())
+                                .inflate(R.layout.item_today_event, eventsListContainer, false);
+                        ((TextView) row.findViewById(R.id.tvEventTitle)).setText(title);
+                        ((TextView) row.findViewById(R.id.tvEventTime)).setText(timeFmt.format(ts.toDate()));
+
+                        row.setOnClickListener(vv -> {
+                            dialog.dismiss();
+                            openPlanDetail(planId);
+                        });
+
+                        eventsListContainer.addView(row);
+                    }
+
+                    tvNoEvents.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+                });
+
         dialog.show();
+    }
+
+    private void openPlanDetail(String planId) {
+        if (!isAdded() || getActivity() == null) return;
+        Intent intent = new Intent(requireActivity(), PlanDetailActivity.class);
+        intent.putExtra("plan_id", planId);
+        startActivity(intent);
+    }
+
+    private void openAddPlanDialog(Calendar day) {
+        if (!isAdded() || getActivity() == null || getActivity().isFinishing()) return;
+        AddPlanDialog dialog = AddPlanDialog.newInstance(
+                day.get(Calendar.YEAR),
+                day.get(Calendar.MONTH),
+                day.get(Calendar.DAY_OF_MONTH)
+        );
+        dialog.setOnPlanAddedListener(() -> loadData(0));
+        dialog.show(getChildFragmentManager(), "AddPlanDialog");
     }
 
     private int dpToPx(int dp) {

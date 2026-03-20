@@ -68,5 +68,20 @@
     <string name="no_wifi">Brak połączenia</string>
     <string name="waiting">Oczekiwanie na połączenie z internetem</string>
 
+    <string name="add_plan_title">Nowy plan</string>
+    <string name="add_plan_hint_title">Tytuł (opcjonalny)</string>
+    <string name="add_plan_hint_content">Opis / treść (opcjonalny)</string>
+    <string name="add_plan_section_due">Termin</string>
+    <string name="add_plan_no_date">Nie wybrano daty</string>
+    <string name="add_plan_pick_date">Wybierz</string>
+    <string name="add_plan_section_notif">Powiadomienia</string>
+    <string name="add_plan_notif_hint">Kliknij godzinę • przytrzymaj aby ustawić minuty</string>
+    <string name="add_plan_section_priority">Priorytet</string>
+    <string name="add_plan_save">Zapisz plan</string>
+    <string name="add_plan_error_no_date">Wybierz datę terminu</string>
+    <string name="add_plan_error_save">Błąd podczas zapisywania</string>
+    <string name="priority_low">Niski</string>
+    <string name="priority_medium">Średni</string>
+    <string name="priority_high">Wysoki</string>
 
 </resources>

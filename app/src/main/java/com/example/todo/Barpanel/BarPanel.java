@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
+import androidx.fragment.app.FragmentActivity;
+
 import com.example.todo.R;
 
 import java.lang.ref.WeakReference;
@@ -47,7 +49,14 @@ public class BarPanel {
         LinearLayout optionPlan = popupView.findViewById(R.id.optionPlan);
         optionPlan.setOnClickListener(v -> {
             popup.dismiss();
-            if (onPlanClick != null) onPlanClick.run();
+            if (context instanceof FragmentActivity) {
+                FragmentActivity activity = (FragmentActivity) context;
+                AddPlanDialog dialog = new AddPlanDialog();
+                dialog.setOnPlanAddedListener(() -> {
+                    if (onPlanClick != null) onPlanClick.run();
+                });
+                dialog.show(activity.getSupportFragmentManager(), "AddPlanDialog");
+            }
         });
 
         popupView.measure(

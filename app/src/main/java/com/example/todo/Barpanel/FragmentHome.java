@@ -1,6 +1,12 @@
 package com.example.todo.Barpanel;
 
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.todo.R;
@@ -24,13 +31,14 @@ import java.util.Locale;
 
 public class FragmentHome extends Fragment {
 
-    private TextView tvGreeting;
-    private TextView tvNick;
+    private TextView tvGreetingFull;
     private TextView tvDate;
     private TextView tvTodayCount;
     private LinearLayout todayEventsContainer;
     private LinearLayout emptyContainer;
     private ProgressBar todayProgress;
+
+    private String pendingGreeting = "";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -42,64 +50,87 @@ public class FragmentHome extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvGreeting          = view.findViewById(R.id.tvGreeting);
-        tvNick              = view.findViewById(R.id.tvNick);
-        tvDate              = view.findViewById(R.id.tvDate);
-        tvTodayCount        = view.findViewById(R.id.tvTodayCount);
+        tvGreetingFull       = view.findViewById(R.id.tvGreetingFull);
+        tvDate               = view.findViewById(R.id.tvDate);
+        tvTodayCount         = view.findViewById(R.id.tvTodayCount);
         todayEventsContainer = view.findViewById(R.id.todayEventsContainer);
-        emptyContainer      = view.findViewById(R.id.emptyContainer);
-        todayProgress       = view.findViewById(R.id.todayProgress);
+        emptyContainer       = view.findViewById(R.id.emptyContainer);
+        todayProgress        = view.findViewById(R.id.todayProgress);
 
-        setDateAndGreeting();
+        setDate();
         loadNick();
         loadTodayEvents();
 
         view.findViewById(R.id.btnAddFirst).setOnClickListener(v -> {
-            // TODO: OKIENKO POJAWIENIA
         });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        tvGreeting          = null;
-        tvNick              = null;
-        tvDate              = null;
-        tvTodayCount        = null;
+        tvGreetingFull       = null;
+        tvDate               = null;
+        tvTodayCount         = null;
         todayEventsContainer = null;
-        emptyContainer      = null;
-        todayProgress       = null;
+        emptyContainer       = null;
+        todayProgress        = null;
     }
 
-    private void setDateAndGreeting() {
+    private String getGreeting() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String greeting;
-        if (hour < 12)      greeting = getString(R.string.greeting_morning);
-        else if (hour < 18) greeting = getString(R.string.greeting_afternoon);
-        else                greeting = getString(R.string.greeting_evening);
+        if (hour < 12)      return getString(R.string.greeting_morning);
+        else if (hour < 18) return getString(R.string.greeting_afternoon);
+        else                return getString(R.string.greeting_evening);
+    }
 
-        tvGreeting.setText(greeting);
-
+    private void setDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d MMMM", new Locale("pl"));
         String dateText = sdf.format(new Date());
         tvDate.setText(Character.toUpperCase(dateText.charAt(0)) + dateText.substring(1));
     }
 
+    private void setGreetingWithNick(String nick) {
+        if (!isAdded() || tvGreetingFull == null) return;
+
+        String greeting = getGreeting() + " ";
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+
+        SpannableString greetingSpan = new SpannableString(greeting);
+        greetingSpan.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.brown_medium)),
+                0, greeting.length(), 0);
+
+        SpannableString nickSpan = new SpannableString(nick);
+        nickSpan.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.brown_primary)),
+                0, nick.length(), 0);
+        nickSpan.setSpan(new StyleSpan(Typeface.BOLD), 0, nick.length(), 0);
+
+        sb.append(greetingSpan);
+        sb.append(nickSpan);
+
+        tvGreetingFull.setText(sb);
+        tvGreetingFull.setAlpha(0f);
+        tvGreetingFull.animate().alpha(1f).setDuration(400).start();
+    }
+
     private void loadNick() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            setGreetingWithNick("");
+            return;
+        }
 
         FirebaseFirestore.getInstance()
                 .collection("nicks")
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (!isAdded() || tvNick == null) return;
+                    if (!isAdded() || tvGreetingFull == null) return;
                     String nick = doc.getString("nick");
                     if (nick == null || nick.isEmpty()) nick = user.getEmail();
-                    tvNick.setText(nick);
-                    tvNick.setAlpha(0f);
-                    tvNick.animate().alpha(1f).setDuration(400).start();
+                    if (nick == null) nick = "";
+                    setGreetingWithNick(nick);
                 });
     }
 
@@ -150,7 +181,7 @@ public class FragmentHome extends Fragment {
                     int delay = 0;
 
                     for (QueryDocumentSnapshot doc : query) {
-                        String title   = doc.getString("title");
+                        String title = doc.getString("title");
                         if (title == null || title.isEmpty()) title = doc.getString("content");
                         if (title == null) title = getString(R.string.home_untitled);
 

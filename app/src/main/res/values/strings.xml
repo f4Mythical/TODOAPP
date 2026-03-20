@@ -67,4 +67,6 @@
 
     <string name="no_wifi">Brak połączenia</string>
     <string name="waiting">Oczekiwanie na połączenie z internetem</string>
+
+
 </resources>

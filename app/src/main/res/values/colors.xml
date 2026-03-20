@@ -19,5 +19,8 @@
     <color name="alert">#8B4513</color>
     <color name="error">#B00020</color>
 
+    <color name="priority_high">#9E5B3A</color>
+    <color name="priority_medium">#7A6248</color>
+    <color name="priority_low">#8A9E82</color>
 
 </resources>

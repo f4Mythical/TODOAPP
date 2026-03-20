@@ -85,4 +85,13 @@
     <string name="priority_high">Wysoki</string>
     <string name="add_plan_error_no_title">Tytuł jest wymagany</string>
 
+    <string name="history_title">Historia</string>
+    <string name="history_count">%d planów</string>
+    <string name="history_no_plans">Brak dodanych planów</string>
+    <string name="history_no_notif">brak powiadomienia</string>
+    <string name="history_label_added">Dodano:</string>
+    <string name="history_label_due">Termin:</string>
+    <string name="history_label_notif">Powiadomienie:</string>
+    <string name="history_status_done">Wykonano</string>
+    <string name="history_status_pending">W toku</string>
 </resources>

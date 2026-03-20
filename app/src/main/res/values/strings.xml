@@ -69,7 +69,7 @@
     <string name="waiting">Oczekiwanie na połączenie z internetem</string>
 
     <string name="add_plan_title">Nowy plan</string>
-    <string name="add_plan_hint_title">Tytuł (opcjonalny)</string>
+    <string name="add_plan_hint_title">Tytuł</string>
     <string name="add_plan_hint_content">Opis / treść (opcjonalny)</string>
     <string name="add_plan_section_due">Termin</string>
     <string name="add_plan_no_date">Nie wybrano daty</string>
@@ -83,5 +83,6 @@
     <string name="priority_low">Niski</string>
     <string name="priority_medium">Średni</string>
     <string name="priority_high">Wysoki</string>
+    <string name="add_plan_error_no_title">Tytuł jest wymagany</string>
 
 </resources>

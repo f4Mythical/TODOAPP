@@ -1,6 +1,7 @@
 package com.example.todo.Barpanel;
 
 import android.app.DatePickerDialog;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.example.todo.FirestoreHelper;
 import com.example.todo.R;
@@ -40,8 +42,9 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
     private OnPlanAddedListener listener;
 
     private TextInputEditText etTitle, etContent;
-    private TextInputLayout   tilContent;
+    private TextInputLayout   tilPlanTitle, tilContent;
     private TextView          tvSelectedDate;
+    private TextView          tvDateError;
     private LinearLayout      hoursGrid;
     private LinearLayout      notifChipsContainer;
     private Button            btnLow, btnMedium, btnHigh;
@@ -81,8 +84,10 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
 
         etTitle              = view.findViewById(R.id.etPlanTitle);
         etContent            = view.findViewById(R.id.etPlanContent);
+        tilPlanTitle         = view.findViewById(R.id.tilPlanTitle);
         tilContent           = view.findViewById(R.id.tilPlanContent);
         tvSelectedDate       = view.findViewById(R.id.tvSelectedDate);
+        tvDateError          = view.findViewById(R.id.tvDateError);
         hoursGrid            = view.findViewById(R.id.hoursGrid);
         notifChipsContainer  = view.findViewById(R.id.notifChipsContainer);
         btnLow               = view.findViewById(R.id.btnPriorityLow);
@@ -90,6 +95,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         btnHigh              = view.findViewById(R.id.btnPriorityHigh);
         btnSave              = view.findViewById(R.id.btnSavePlan);
         progressSave         = view.findViewById(R.id.progressSave);
+
+        applyHintColors();
 
         Bundle args = getArguments();
         if (args != null) {
@@ -116,6 +123,13 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         btnSave.setOnClickListener(v -> savePlan());
     }
 
+    private void applyHintColors() {
+        ColorStateList hintColor = ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.brown_medium));
+        if (tilPlanTitle != null) tilPlanTitle.setDefaultHintTextColor(hintColor);
+        if (tilContent   != null) tilContent.setDefaultHintTextColor(hintColor);
+    }
+
     private void openDatePicker() {
         Calendar cal = selectedDueDate != null ? selectedDueDate : Calendar.getInstance();
         new DatePickerDialog(requireContext(),
@@ -128,6 +142,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
                         selectedDueDate.set(Calendar.MINUTE, 59);
                     }
                     updateDateLabel();
+                    if (tvDateError != null) tvDateError.setVisibility(View.GONE);
                 },
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
@@ -138,10 +153,12 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
     private void updateDateLabel() {
         if (selectedDueDate == null) {
             tvSelectedDate.setText(getString(R.string.add_plan_no_date));
+            tvSelectedDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.brown_medium));
         } else {
             java.text.SimpleDateFormat sdf =
                     new java.text.SimpleDateFormat("d MMMM yyyy", new java.util.Locale("pl"));
             tvSelectedDate.setText(sdf.format(selectedDueDate.getTime()));
+            tvSelectedDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.brown_primary));
         }
     }
 
@@ -172,8 +189,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
         tv.setText(String.valueOf(hour));
         tv.setGravity(android.view.Gravity.CENTER);
         tv.setTextSize(13f);
-        tv.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brown_primary));
-        tv.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.brown_primary));
+        tv.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
         tv.setOnClickListener(v -> onHourSelected(hour, 0, tv));
         tv.setOnLongClickListener(v -> {
             pendingHour = hour;
@@ -199,11 +216,11 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
 
     private void updateHourChipState(TextView chip, boolean selected) {
         if (selected) {
-            chip.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_selected_bg));
-            chip.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cream));
+            chip.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_selected_bg));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.cream));
         } else {
-            chip.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
-            chip.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brown_primary));
+            chip.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.brown_primary));
         }
     }
 
@@ -226,8 +243,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
                 tv.setText(String.format(java.util.Locale.getDefault(), ":%02d", min));
                 tv.setGravity(android.view.Gravity.CENTER);
                 tv.setTextSize(13f);
-                tv.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brown_primary));
-                tv.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
+                tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.brown_primary));
+                tv.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_bg));
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dpToPx(40), 1f);
                 lp.setMargins(dpToPx(3), dpToPx(3), dpToPx(3), dpToPx(3));
                 tv.setLayoutParams(lp);
@@ -261,8 +278,8 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
             TextView chip = new TextView(requireContext());
             chip.setText(String.format(java.util.Locale.getDefault(), "%d:%02d", t[0], t[1]));
             chip.setTextSize(12f);
-            chip.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cream));
-            chip.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_selected_bg));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.cream));
+            chip.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.hour_chip_selected_bg));
             int ph = dpToPx(6), pv = dpToPx(4);
             chip.setPadding(ph, pv, ph, pv);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -296,10 +313,10 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
 
     private void selectPriority(String p) {
         selectedPriority = p;
-        int active       = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brown_primary);
-        int inactive     = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cream);
-        int activeText   = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cream);
-        int inactiveText = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brown_medium);
+        int active       = ContextCompat.getColor(requireContext(), R.color.brown_primary);
+        int inactive     = ContextCompat.getColor(requireContext(), R.color.cream);
+        int activeText   = ContextCompat.getColor(requireContext(), R.color.cream);
+        int inactiveText = ContextCompat.getColor(requireContext(), R.color.brown_medium);
         resetPriorityBtn(btnLow,    "low".equals(p),    active, inactive, activeText, inactiveText);
         resetPriorityBtn(btnMedium, "medium".equals(p), active, inactive, activeText, inactiveText);
         resetPriorityBtn(btnHigh,   "high".equals(p),   active, inactive, activeText, inactiveText);
@@ -307,18 +324,31 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
 
     private void resetPriorityBtn(Button btn, boolean isActive,
                                   int active, int inactive, int activeText, int inactiveText) {
-        btn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(isActive ? active : inactive));
+        btn.setBackgroundTintList(ColorStateList.valueOf(isActive ? active : inactive));
         btn.setTextColor(isActive ? activeText : inactiveText);
     }
 
     private void savePlan() {
-        String title   = etTitle.getText()   != null ? etTitle.getText().toString().trim()   : "";
-        String content = etContent.getText() != null ? etContent.getText().toString().trim() : "";
+        boolean hasError = false;
+
+        String title = etTitle.getText() != null ? etTitle.getText().toString().trim() : "";
+        if (title.isEmpty()) {
+            tilPlanTitle.setError(getString(R.string.add_plan_error_no_title));
+            hasError = true;
+        } else {
+            tilPlanTitle.setError(null);
+        }
 
         if (selectedDueDate == null) {
-            Toast.makeText(requireContext(), getString(R.string.add_plan_error_no_date), Toast.LENGTH_SHORT).show();
-            return;
+            if (tvDateError != null) tvDateError.setVisibility(View.VISIBLE);
+            hasError = true;
+        } else {
+            if (tvDateError != null) tvDateError.setVisibility(View.GONE);
         }
+
+        if (hasError) return;
+
+        String content = etContent.getText() != null ? etContent.getText().toString().trim() : "";
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
@@ -355,7 +385,7 @@ public class AddPlanDialog extends BottomSheetDialogFragment {
                             user.getUid(),
                             email,
                             nick,
-                            finalTitle.isEmpty() ? null : finalTitle,
+                            finalTitle,
                             finalContent,
                             finalNotifTime,
                             dueTime,

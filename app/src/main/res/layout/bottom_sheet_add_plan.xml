@@ -23,14 +23,30 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/bottom_sheet_handle" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_plan_title"
-            android:textColor="@color/brown_primary"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/add_plan_title"
+                android:textColor="@color/brown_primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="* wymagane"
+                android:textColor="@color/brown_light"
+                android:textSize="11sp" />
+
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPlanTitle"
@@ -82,16 +98,33 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_plan_section_due"
-            android:textColor="@color/brown_medium"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.1"
-            android:textAllCaps="true"
-            android:layout_marginBottom="8dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/add_plan_section_due"
+                android:textColor="@color/brown_medium"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="*"
+                android:textColor="@color/brown_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -100,8 +133,7 @@
             android:gravity="center_vertical"
             android:background="@drawable/profile_card_bg"
             android:paddingStart="16dp"
-            android:paddingEnd="12dp"
-            android:layout_marginBottom="24dp">
+            android:paddingEnd="12dp">
 
             <ImageView
                 android:layout_width="18dp"
@@ -132,6 +164,25 @@
                 app:cornerRadius="10dp" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvDateError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_plan_error_no_date"
+            android:textColor="#B00020"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="invisible"
+            android:id="@+id/spacerDate" />
 
         <TextView
             android:layout_width="wrap_content"

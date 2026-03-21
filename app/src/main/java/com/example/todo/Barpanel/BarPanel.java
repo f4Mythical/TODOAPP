@@ -59,6 +59,24 @@ public class BarPanel {
             }
         });
 
+        LinearLayout optionMow = popupView.findViewById(R.id.optionMow);
+        optionMow.setOnClickListener(v -> {
+            popup.dismiss();
+            if (context instanceof FragmentActivity) {
+                FragmentActivity activity = (FragmentActivity) context;
+                FragmentMow fragment = new FragmentMow();
+                activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(
+                                android.R.anim.fade_in,
+                                android.R.anim.fade_out
+                        )
+                        .replace(R.id.fragmentContainer, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
         popupView.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
